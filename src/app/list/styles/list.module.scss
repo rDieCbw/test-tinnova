@@ -7,13 +7,14 @@
 }
 
 .content{
-  height: 30vh;
+  min-height: 50vh;
+  max-height: 70vh;
   width: 80vw;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  background-color: rgba(255,255,255, 0.8);
+  background-color: white;
   padding: 32px;
   border-radius: 8px;
   box-shadow: $default-shadow
@@ -36,7 +37,7 @@
 
 .listItem {
   display: grid;
-  grid-template-columns: repeat(4, 23.5%);
+  grid-template-columns: repeat(4, 22%) 6%;
   gap: 16px;
   padding: 0 16px;
   &:nth-child(even){
@@ -60,6 +61,14 @@
   }
 }
 
+.removeUser{
+  background-color: transparent;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .title{
   font-size: 49px;
   color: black;
@@ -71,8 +80,11 @@
   align-items: center;
   width: 100%;
   margin: 32px 0;
-  }
+  gap: 16px
+}
 
-.button{
-  @include button
+.button {
+  @include button;
+  border: none;
+  width: 100%;
 }

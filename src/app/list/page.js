@@ -20,6 +20,13 @@ export default function List() {
     }
   }
 
+  const removeUserFromList = (index) => {
+    const storedList = JSON.parse(localStorage.getItem('userList')) || []
+    const newList = userList.filter((u, i) => i !== index)
+    localStorage.setItem('userList', JSON.stringify(newList))
+    setUserlist(newList)
+  }
+
   useEffect(() => {
     setInitialData()
   }, [])
@@ -40,7 +47,7 @@ export default function List() {
         ) : (
           <>
             <ul className={styles.listContainer}>
-              {userList?.map(user => (
+              {userList?.map((user, index) => (
                 <li className={styles.listItem}>
                   <p className={styles.userInfo}>
                     <span>Nome:</span>
@@ -64,6 +71,15 @@ export default function List() {
                     <span>E-mail:</span>
                     {user.email && user.email}
                   </p>
+
+                  <button className={styles.removeUser} onClick={() => { removeUserFromList(index) }}>
+                    <Image
+                      src="/delete.svg"
+                      alt="Remover"
+                      width={20}
+                      height={20}
+                    />
+                  </button>
 
                 </li>
               ))}

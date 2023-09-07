@@ -3,9 +3,12 @@ import { useState, useEffect } from "react";
 import styles from './styles/form.module.scss'
 import axios from "axios";
 import Link from 'next/link'
+import Image from 'next/image'
 import * as yup from 'yup';
 import { isValidCPF } from '@brazilian-utils/brazilian-utils';
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import MaskedInput from "react-text-mask";
+import cx from "classnames";
 
 export default function List() {
 
@@ -19,42 +22,42 @@ export default function List() {
       .email("Formato de E-mail inválido")
       .required("Campo obrigatório"),
     cpf: yup
-      .number()
+      .string()
       .test(
         'test-valid-cpf',
         'CPF inválido',
-        (cpf) => !isValidCPF(cpf))
+        (cpf) => isValidCPF(cpf))
       .required("Campo obrigatório"),
     phone: yup
       .string()
-      .min(10)
-      .max(11)
       .required("Campo obrigatório"),
   });
 
   const initialFormData = {
-    name: null,
-    email: null,
-    cpf: null,
-    phone: null
+    name: "",
+    cpf: "",
+    email: "",
+    phone: ""
+  }
+  const [isLoading, setIsLoading] = useState(false)
+
+  const initUserList = async () => {
+    const storedList = JSON.parse(localStorage.getItem('userList')) || []
+    if (storedList?.length <= 0) {
+      const { data } = await axios.get('https://private-9d65b3-tinnova.apiary-mock.com/users')
+      localStorage.setItem('userList', JSON.stringify(data))
+    }
   }
 
-  const [userFormData, setUserFormData] = useState(initialFormData);
+  const saveUserInList = (user) => {
+    const storedList = JSON.parse(localStorage.getItem('userList')) || []
+    storedList.push(user)
+    localStorage.setItem('userList', JSON.stringify(storedList))
+  }
 
-  // const setInitialData = async () => {
-  //   const storedList = JSON.parse(localStorage.getItem('userList')) || []
-  //   if (storedList?.length <= 0) {
-  //     const { data } = await axios.get('https://private-9d65b3-tinnova.apiary-mock.com/users')
-  //     setUserlist(data)
-  //     localStorage.setItem('userList', JSON.stringify(data))
-  //   } else {
-  //     setUserlist(storedList)
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   setInitialData()
-  // }, [])
+  useEffect(() => {
+    initUserList()
+  }, [])
 
   const renderError = (message) => <span className={styles.fieldError}>{message}</span>;
 
@@ -65,43 +68,89 @@ export default function List() {
           initialValues={initialFormData}
           validationSchema={validationSchema}
           onSubmit={async (values, { resetForm }) => {
-            await onSubmit(values);
+            setIsLoading(true)
+            await saveUserInList(values);
             resetForm();
+            setIsLoading(false)
           }}
         >
-          <Form>
-              <div className="field">
-                <label className="label" htmlFor="name">
+          {({ errors, touched, isValid, values }) => (
+            <Form className={styles.form}>
+              <div className={styles.inputWrapper}>
+                <Field
+                  name="name"
+                  type="text"
+                  value={values.name}
+                  className={cx([styles.input, ((errors.name && touched.name) && styles.error), (touched.name && styles.focused)])}
+                />
+                <label className={styles.label} htmlFor="name">
                   Nome completo (sem abreviações)
                 </label>
-                <div className="control">
-                  <Field
-                    name="name"
-                    type="text"
-                    className="input"
-                  />
-                  <ErrorMessage name="name" render={renderError} />
-                </div>
+                <ErrorMessage name="name" render={renderError} />
               </div>
-              <div className="field">
-                <label className="label" htmlFor="name">
+
+              <div className={styles.inputWrapper}>
+                <Field name="cpf">
+                  {
+                    ({ field }) => <MaskedInput
+                      {...field}
+                      type="tel"
+                      mask={[/[0-9]/, /[0-9]/, /[0-9]/, ".", /[0-9]/, /[0-9]/, /[0-9]/, ".", /[0-9]/, /[0-9]/, /[0-9]/, "-", /[0-9]/, /[0-9]/]}
+                      className={cx([styles.input, ((errors.cpf && touched.cpf) && styles.error), (touched.cpf && styles.focused)])}
+                    />
+                  }
+                </Field>
+                <label className={styles.label} htmlFor="cpf">
                   CPF
                 </label>
-                <div className="control">
-                  <Field
-                    name="cpf"
-                    type="tel"
-                    className="input"
-                    max={11}
-                  />
-                  <ErrorMessage name="cpf" render={renderError} />
-                </div>
+                <ErrorMessage name="cpf" render={renderError} />
               </div>
-              <button type="submit" className="button is-primary">
-                Submit
+              <div className={styles.inputWrapper}>
+                <Field name="phone">
+                  {
+                    ({ field }) => <MaskedInput
+                      {...field}
+                      type="tel"
+                      mask={["(", /[0-9]/, /[0-9]/, ")", /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/, "-", /[0-9]/, /[0-9]/, /[0-9]/, /[0-9]/]}
+                      className={cx([styles.input, ((errors.phone && touched.phone) && styles.error), (touched.phone && styles.focused)])}
+                    />
+                  }
+                </Field>
+                <label className={styles.label} htmlFor="phone">
+                  Telefone
+                </label>
+                <ErrorMessage name="phone" render={renderError} />
+              </div>
+              <div className={styles.inputWrapper}>
+                <Field
+                  name="email"
+                  type="email"
+                  value={values.email}
+                  className={cx([styles.input, ((errors.email && touched.email) && styles.error), (touched.email && styles.focused)])}
+                />
+                <label className={styles.label} htmlFor="email">
+                  E-mail
+                </label>
+                <ErrorMessage name="email" render={renderError} />
+              </div>
+
+              <button type="submit" className={cx([styles.button], (isLoading && styles.loading))} disabled={!isValid}>
+                {isLoading ? (<Image
+                  src="/loading-btn.svg"
+                  alt="Carregando"
+                  width={33}
+                  height={33}
+                  priority
+                />) : "Cadastrar"}
               </button>
             </Form>
+          )}
         </Formik>
+
+        <div className={styles.buttonWrapper}>
+          <Link className={styles.button} href="/list">Ver Lista</Link>
+          <Link className={styles.button} href="/">Voltar</Link>
+        </div>
       </div>
     </main>
   )
