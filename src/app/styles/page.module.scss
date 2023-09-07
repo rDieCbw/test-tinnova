@@ -1,0 +1,36 @@
+@import './variables';
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.content{
+  height: 30vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255,255,255, 0.8);
+  padding: 32px;
+  border-radius: 8px;
+  box-shadow: $default-shadow
+}
+
+.title{
+  font-size: 49px;
+  color: black;
+}
+
+.buttonWrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  margin: 32px 0;
+  }
+
+.button{
+  @include button
+}

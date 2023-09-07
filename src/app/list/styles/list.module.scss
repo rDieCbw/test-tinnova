@@ -1,0 +1,78 @@
+@import '@/app/styles/variables';
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.content{
+  height: 30vh;
+  width: 80vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(255,255,255, 0.8);
+  padding: 32px;
+  border-radius: 8px;
+  box-shadow: $default-shadow
+}
+
+.loadingContainer{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.listContainer{
+  overflow: auto;
+  width: 100%;
+  list-style: none;
+  padding: 0;
+}
+
+.listItem {
+  display: grid;
+  grid-template-columns: repeat(4, 23.5%);
+  gap: 16px;
+  padding: 0 16px;
+  &:nth-child(even){
+    background-color: rgba($color: #000000, $alpha: 0.1);
+  }
+}
+
+.userInfo{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  span{
+    font-size: 12px;
+    color: gray;
+  }
+}
+
+.title{
+  font-size: 49px;
+  color: black;
+}
+
+.buttonWrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  margin: 32px 0;
+  }
+
+.button{
+  @include button
+}
